@@ -1,0 +1,24 @@
+# Systemd-Service-Datei für den LiteLLM Proxy
+# Installieren: sudo cp litellm.service /etc/systemd/system/
+# Aktivieren:   sudo systemctl daemon-reload && sudo systemctl enable --now litellm
+
+[Unit]
+Description=LiteLLM Proxy (Qwen via SGLang)
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=herzig_group
+WorkingDirectory=/home/herzig_group
+ExecStart=/home/herzig_group/litellm_env/bin/litellm \
+    --config /home/herzig_group/litellm_config.yaml \
+    --port 4000 \
+    --host 0.0.0.0
+Restart=on-failure
+RestartSec=15
+Environment="HOME=/home/herzig_group"
+Environment="PATH=/home/herzig_group/litellm_env/bin:/usr/local/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target

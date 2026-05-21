@@ -1,0 +1,33 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    volumes:
+      - open-webui:/app/backend/data
+    ports:
+      - "3000:8080"
+    env_file:
+      - .env
+    networks:
+      - searxng_default
+
+  sglang-proxy:
+    build: ./sglang-proxy
+    container_name: sglang-proxy
+    restart: unless-stopped
+    environment:
+      - SGLANG_URL=http://qwen36:30000
+      - SGLANG_MODEL=Qwen36_35B_A3B
+      - SGLANG_MODEL_ALIAS=Qwen36_35B_A3B_no-think
+      - DISABLE_THINKING=true
+    networks:
+      - searxng_default
+
+volumes:
+  open-webui:
+    external: true
+
+networks:
+  searxng_default:
+    external: true

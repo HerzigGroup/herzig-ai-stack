@@ -1,0 +1,31 @@
+use_default_settings: true
+
+general:
+  debug: false
+  instance_name: "SearXNG (lokal)"
+
+search:
+  safe_search: 0
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "773493b38b98223b6741769e9dea1c3a8b0f33ee220b42071e5cbb44f70303c2"
+  limiter: false
+  image_proxy: false
+
+ui:
+  static_use_hash: true
+
+engines:
+  - name: google
+    engine: google
+    use_mobile_ui: false
+  - name: bing
+    engine: bing
+  - name: duckduckgo
+    engine: duckduckgo
+  - name: wikipedia
+    engine: wikipedia
+    language: de

@@ -1,0 +1,7 @@
+# Secrets nie committen
+open-webui/.env
+searxng/config/uwsgi.ini
+
+# Docker-interne Caches
+__pycache__/
+*.pyc
