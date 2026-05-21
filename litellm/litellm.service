@@ -1,6 +1,6 @@
-# Systemd-Service-Datei für den LiteLLM Proxy
-# Installieren: sudo cp litellm.service /etc/systemd/system/
-# Aktivieren:   sudo systemctl daemon-reload && sudo systemctl enable --now litellm
+# Systemd service file for the LiteLLM proxy
+# Install: sudo cp litellm.service /etc/systemd/system/
+# Enable:  sudo systemctl daemon-reload && sudo systemctl enable --now litellm
 
 [Unit]
 Description=LiteLLM Proxy (Qwen via SGLang)

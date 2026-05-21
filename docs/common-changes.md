@@ -1,26 +1,26 @@
-# Häufige Änderungen
+# Common Changes
 
-## Modell wechseln
+## Swap the Model
 
-1. Neues Modell nach `~/models/` herunterladen (z.B. mit `huggingface-cli download`)
-2. In `sglang/start.sh` anpassen:
-   - `MODEL_DIR` auf den neuen Pfad setzen
-   - `--served-model-name` ggf. umbenennen
-   - `--reasoning-parser` und `--tool-call-parser` prüfen (modellabhängig)
-3. In `litellm/config.yaml`: `served-model-name` in `api_base` bzw. den `model`-Pfad anpassen (falls relevant)
-4. Container neu starten: `docker stop qwen36 && docker rm qwen36 && ./sglang/start.sh`
+1. Download the new model to `~/models/` (e.g. with `huggingface-cli download`)
+2. Update `sglang/start.sh`:
+   - Set `MODEL_DIR` to the new path
+   - Rename `--served-model-name` if needed
+   - Check `--reasoning-parser` and `--tool-call-parser` (model-dependent)
+3. In `litellm/config.yaml`: update the `model` path if relevant
+4. Restart the container: `docker stop qwen36 && docker rm qwen36 && ./sglang/start.sh`
 
-## Kontext-Länge ändern
+## Change Context Length
 
 In `sglang/start.sh`:
 ```bash
---context-length 131072   # Wert anpassen (z.B. 65536 für 64k)
+--context-length 131072   # Adjust value (e.g. 65536 for 64k)
 ```
-Auch `CLAUDE_CODE_AUTO_COMPACT_WINDOW` im `claude-qwen`-Alias anpassen.
+Also update `CLAUDE_CODE_AUTO_COMPACT_WINDOW` in the `claude-qwen` alias.
 
-## Thinking-Modus standardmäßig deaktivieren (SGLang-weite Einstellung)
+## Disable Thinking Mode Globally (SGLang-wide setting)
 
-Aktuell wird Thinking für Claude Code über LiteLLM nicht explizit gesteuert — es ist im Modell aktiv. Soll es global deaktiviert werden, kann in `litellm/config.yaml` ergänzt werden:
+Currently thinking is not explicitly controlled for Claude Code via LiteLLM — it is active in the model. To disable it globally, add to `litellm/config.yaml`:
 ```yaml
 default_params:
   extra_body:
@@ -28,59 +28,59 @@ default_params:
       enable_thinking: false
 ```
 
-## Neue Suchmaschine in SearXNG hinzufügen
+## Add a New Search Engine in SearXNG
 
-In `searxng/config/settings.yml` unter `engines:` eintragen:
+Add to `searxng/config/settings.yml` under `engines:`:
 ```yaml
   - name: startpage
     engine: startpage
 ```
-Danach SearXNG-Container neu starten: `cd ~/searxng && docker compose restart`
+Then restart the SearXNG container: `cd ~/searxng && docker compose restart`
 
-## Port-Änderungen
+## Port Changes
 
-- **SGLang-Port** (30000): In `sglang/start.sh` (`PORT=`), in `litellm/config.yaml` (`api_base`), in `open-webui/.env` (`OPENAI_API_BASE_URL`), in `open-webui/docker-compose.yml` (`SGLANG_URL`)
-- **LiteLLM-Port** (4000): In `litellm/litellm.service` (`--port`), im `claude-qwen`-Alias in `~/.bashrc`
-- **SearXNG-Port** (8080): In `searxng/docker-compose.yml`, in `open-webui/.env`, in `searxng/mcp-searxng.service` (`SEARXNG_URL`)
-- **MCP-Port** (8001): In `searxng/mcp-searxng.service`, in `~/.claude.json` (MCP-URL)
+- **SGLang port** (30000): Update in `sglang/start.sh` (`PORT=`), `litellm/config.yaml` (`api_base`), `open-webui/.env` (`OPENAI_API_BASE_URL`), `open-webui/docker-compose.yml` (`SGLANG_URL`)
+- **LiteLLM port** (4000): Update in `litellm/litellm.service` (`--port`), and in the `claude-qwen` alias in `~/.bashrc`
+- **SearXNG port** (8080): Update in `searxng/docker-compose.yml`, `open-webui/.env`, `searxng/mcp-searxng.service` (`SEARXNG_URL`)
+- **MCP port** (8001): Update in `searxng/mcp-searxng.service`, and in `~/.claude.json` (MCP URL)
 
-## IP-Adresse ändert sich
+## IP Address Changes
 
-Wenn die IP des Servers sich ändert (z.B. nach DHCP-Wechsel):
-- `~/.claude.json`: `mcpServers.searxng.url` aktualisieren
-- `~/.bashrc`: `ANTHROPIC_BASE_URL` im `claude-qwen`-Alias aktualisieren
-- Aktuell: `132.180.21.140` (Ethernet) / `10.42.0.231` (WLAN)
+If the server's IP changes (e.g. after DHCP reassignment):
+- `~/.claude.json`: update `mcpServers.searxng.url`
+- `~/.bashrc`: update `ANTHROPIC_BASE_URL` in the `claude-qwen` alias
+- Current: `132.180.21.140` (Ethernet) / `10.42.0.231` (WLAN)
 
-## LiteLLM-Parameter anpassen
+## Adjust LiteLLM Parameters
 
-In `litellm/config.yaml` unter `litellm_settings.default_params`:
+In `litellm/config.yaml` under `litellm_settings.default_params`:
 ```yaml
-temperature: 0.3    # Kreativität (0.0 = deterministisch, 1.0 = kreativ)
-top_p: 0.9         # Nucleus-Sampling (Alternative zu temperature)
+temperature: 0.3    # Creativity (0.0 = deterministic, 1.0 = creative)
+top_p: 0.9         # Nucleus sampling (alternative to temperature)
 ```
 
-Für spezifische Modell-Overrides kann jedem Modell in `litellm_params` ein eigener `temperature`-Wert gegeben werden.
+For per-model overrides, add a `temperature` value to each model's `litellm_params` entry.
 
-## Neuen Dienst zum Docker-Netzwerk hinzufügen
+## Add a New Service to the Docker Network
 
-Das Netzwerk `searxng_default` verbindet alle Dienste:
+The `searxng_default` network connects all services:
 ```bash
 docker network connect searxng_default <container-name>
 ```
 
-Oder in einer `docker-compose.yml` unter `networks:` eintragen:
+Or add it to a `docker-compose.yml` under `networks:`:
 ```yaml
 networks:
   searxng_default:
     external: true
 ```
 
-## Alles neu starten (nach Reboot)
+## Restart Everything (after reboot)
 
-Die Dienste sind alle mit `restart: unless-stopped` (Docker) bzw. `Restart=on-failure` (systemd) konfiguriert und starten automatisch. Manuell:
+All services are configured with `restart: unless-stopped` (Docker) or `Restart=on-failure` (systemd) and start automatically. To start manually:
 
 ```bash
-# 1. SGLang (Modell laden dauert ~2-5 Min.)
+# 1. SGLang (model loading takes ~2-5 min.)
 ~/start_qwen36.sh
 
 # 2. SearXNG
@@ -92,6 +92,6 @@ cd ~/open-webui && docker compose up -d
 # 4. LiteLLM (systemd)
 sudo systemctl start litellm
 
-# 5. MCP-Server (systemd)
+# 5. MCP server (systemd)
 sudo systemctl start mcp-searxng
 ```

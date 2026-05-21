@@ -1,5 +1,5 @@
 [Unit]
-Description=SearXNG MCP Server (SSE)
+Description=SearXNG MCP Server (Streamable HTTP)
 After=network.target docker.service
 Requires=docker.service
 

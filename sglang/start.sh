@@ -1,18 +1,18 @@
 #!/bin/bash
-# SGLang Server für Qwen3.6-35B-A3B-FP8
-# DGX Spark / GB10 Grace Blackwell — via Docker (kein lokaler Build nötig)
+# SGLang server for Qwen3.6-35B-A3B-FP8
+# DGX Spark / GB10 Grace Blackwell — via Docker (no local build required)
 
 MODEL_DIR=/home/herzig_group/models/Qwen3.6-35B-A3B-FP8
 PORT=30000
 IMAGE=lmsysorg/sglang:latest-cu130-runtime
 CONTAINER=qwen36
 
-# Falls Container bereits existiert (gestoppt), einfach starten
+# If the container already exists (stopped), just start it
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
-  echo "Container '${CONTAINER}' existiert bereits — starte ihn..."
+  echo "Container '${CONTAINER}' already exists — starting it..."
   docker start "${CONTAINER}"
 else
-  echo "Erstelle und starte Container '${CONTAINER}'..."
+  echo "Creating and starting container '${CONTAINER}'..."
   docker run -d \
     --name "${CONTAINER}" \
     --restart unless-stopped \
@@ -35,13 +35,13 @@ else
 fi
 
 echo ""
-echo "Verbinde qwen36 mit searxng_default Netzwerk..."
+echo "Connecting qwen36 to searxng_default network..."
 docker network connect searxng_default "${CONTAINER}" 2>/dev/null || true
 
-echo "Server startet... warte auf /health"
+echo "Server starting... waiting for /health"
 for i in $(seq 1 60); do
   if curl -sf http://localhost:${PORT}/health >/dev/null 2>&1; then
-    echo "Server bereit: http://localhost:${PORT}"
+    echo "Server ready: http://localhost:${PORT}"
     break
   fi
   sleep 5

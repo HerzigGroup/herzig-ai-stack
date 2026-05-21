@@ -1,14 +1,14 @@
-# Systemarchitektur
+# System Architecture
 
-## Überblick
+## Overview
 
 ```
                         ┌─────────────────────────────────────────┐
-                        │          Docker-Netzwerk: searxng_default│
+                        │       Docker network: searxng_default    │
                         │                                         │
   Browser/Client        │  ┌──────────────┐   ┌───────────────┐  │
   Port 3000 ───────────►│  │  open-webui  │──►│  qwen36       │  │
-                        │  │  (Port 8080) │   │  SGLang       │  │
+                        │  │  (Port 3000) │   │  SGLang       │  │
   Claude Code           │  └──────┬───────┘   │  Port 30000   │  │
   (claude-qwen) ────────┼─────────┼───────────►               │  │
   Port 4000 via LiteLLM │         │           └───────────────┘  │
@@ -22,53 +22,53 @@
                               │
                               └──► searxng:8080
 
-  LiteLLM Proxy ──────► localhost:30000/v1 (SGLang, außerhalb Docker)
+  LiteLLM Proxy ──────► localhost:30000/v1 (SGLang, outside Docker)
   (systemd, Port 4000)
 
   PostgreSQL ──────────► 127.0.0.1:5432 (litellm-db, Docker)
 ```
 
-## Datenfluss
+## Data Flow
 
-### Claude Code → Lokales Modell
-1. `claude-qwen` setzt `ANTHROPIC_BASE_URL=http://132.180.21.140:4000`
-2. Claude Code sendet Anfragen im Anthropic-Format an LiteLLM (Port 4000)
-3. LiteLLM übersetzt Anthropic-API → OpenAI-Format und leitet weiter an SGLang (Port 30000)
-4. SGLang führt Inferenz auf dem NVIDIA GB10 GPU aus (Qwen3.6-35B-A3B-FP8)
-5. Antwort läuft den gleichen Weg zurück
+### Claude Code → Local Model
+1. `claude-qwen` sets `ANTHROPIC_BASE_URL=http://132.180.21.140:4000`
+2. Claude Code sends requests in Anthropic format to LiteLLM (port 4000)
+3. LiteLLM translates Anthropic API → OpenAI format and forwards to SGLang (port 30000)
+4. SGLang runs inference on the NVIDIA GB10 GPU (Qwen3.6-35B-A3B-FP8)
+5. Response travels back the same way
 
-### Claude Code → Websuche
-1. Claude Code nutzt MCP-Tool `mcp__searxng__web_search`
-2. MCP-Server (Port 8001, systemd) empfängt Anfrage
-3. MCP-Server ruft SearXNG-API (Port 8080) ab
-4. Ergebnis zurück an Claude Code
+### Claude Code → Web Search
+1. Claude Code uses MCP tool `mcp__searxng__web_search`
+2. MCP server (port 8001, systemd) receives the request
+3. MCP server queries SearXNG API (port 8080)
+4. Result returned to Claude Code
 
-### Open-WebUI → Modell (mit Thinking)
-1. Browser öffnet Port 3000 → Open-WebUI
-2. Open-WebUI sendet direkt an `http://qwen36:30000/v1` (via Docker-Netzwerk)
-3. Modell `Qwen36_35B_A3B` mit Reasoning aktiv
+### Open-WebUI → Model (with thinking)
+1. Browser opens port 3000 → Open-WebUI
+2. Open-WebUI sends directly to `http://qwen36:30000/v1` (via Docker network)
+3. Model `Qwen36_35B_A3B` with reasoning active
 
-### Open-WebUI → Modell (ohne Thinking)
-1. Open-WebUI nutzt Modell `Qwen36_35B_A3B_no-think`
-2. Anfrage geht an sglang-proxy (Port 8000 intern)
-3. sglang-proxy fügt `chat_template_kwargs: {enable_thinking: false}` hinzu
-4. Weiterleitung an qwen36:30000
+### Open-WebUI → Model (without thinking)
+1. Open-WebUI uses model `Qwen36_35B_A3B_no-think`
+2. Request goes to sglang-proxy (port 8000 internal)
+3. sglang-proxy appends `chat_template_kwargs: {enable_thinking: false}`
+4. Forwarded to qwen36:30000
 
-## Netzwerke
+## Networks
 
-| Netzwerk | Typ | Mitglieder |
-|----------|-----|------------|
+| Network | Type | Members |
+|---------|------|---------|
 | `searxng_default` | Docker bridge | searxng, qwen36, sglang-proxy, open-webui |
 | `bridge` (default) | Docker bridge | litellm-db |
-| Host-Netzwerk | — | LiteLLM (systemd), mcp-searxng (systemd) |
+| Host network | — | LiteLLM (systemd), mcp-searxng (systemd) |
 
-## Ports (von außen erreichbar)
+## Ports (externally accessible)
 
-| Port | Dienst | Zugänglich von |
-|------|--------|----------------|
-| 3000 | Open-WebUI | Netz (0.0.0.0) |
-| 4000 | LiteLLM Proxy (Anthropic-API) | Netz (0.0.0.0) |
-| 8001 | SearXNG MCP Server | Netz (0.0.0.0) |
-| 8080 | SearXNG Web-UI | Netz (0.0.0.0) |
-| 30000 | SGLang / OpenAI-API | Netz (0.0.0.0) |
-| 5432 | PostgreSQL (LiteLLM-DB) | nur localhost |
+| Port | Service | Accessible from |
+|------|---------|----------------|
+| 3000 | Open-WebUI | Network (0.0.0.0) |
+| 4000 | LiteLLM Proxy (Anthropic API) | Network (0.0.0.0) |
+| 8001 | SearXNG MCP Server | Network (0.0.0.0) |
+| 8080 | SearXNG Web UI | Network (0.0.0.0) |
+| 30000 | SGLang / OpenAI API | Network (0.0.0.0) |
+| 5432 | PostgreSQL (LiteLLM DB) | localhost only |

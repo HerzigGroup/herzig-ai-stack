@@ -23,17 +23,17 @@ def web_search(query: str, num_results: int = 10) -> str:
         data = resp.json()
         results = data.get("results", [])[:num_results]
         if not results:
-            return "Keine Ergebnisse gefunden."
+            return "No results found."
         lines = []
         for i, r in enumerate(results, 1):
-            lines.append(f"{i}. {r.get('title', 'Kein Titel')}")
+            lines.append(f"{i}. {r.get('title', 'No title')}")
             lines.append(f"   URL: {r.get('url', '')}")
             if r.get("content"):
                 lines.append(f"   {r['content'][:200]}")
             lines.append("")
         return "\n".join(lines)
     except Exception as e:
-        return f"Fehler bei der Suche: {e}"
+        return f"Search error: {e}"
 
 if __name__ == "__main__":
     if TRANSPORT in ("sse", "streamable-http"):

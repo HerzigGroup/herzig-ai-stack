@@ -1,64 +1,64 @@
 # Herzig Group AI Stack
 
-Lokale KI-Infrastruktur auf dem DGX Spark (NVIDIA GB10 / Grace Blackwell).
-Dieses Repo dokumentiert alle Dienste, Konfigurationen und Startskripte.
+Local AI infrastructure on the DGX Spark (NVIDIA GB10 / Grace Blackwell).
+This repo documents all services, configurations, and startup scripts.
 
 ## Hardware
 
-| Komponente | Details |
+| Component | Details |
 |-----------|---------|
 | GPU | NVIDIA GB10 (Grace Blackwell, DGX Spark) |
 | CUDA | 13.0 |
-| Treiber | 580.95.05 |
+| Driver | 580.95.05 |
 | IP (LAN) | 132.180.21.140 |
 | IP (WLAN) | 10.42.0.231 |
 
-## Modell
+## Model
 
-| Eigenschaft | Wert |
-|------------|------|
-| Modell | Qwen3.6-35B-A3B-FP8 |
-| Pfad | `~/models/Qwen3.6-35B-A3B-FP8` (~35 GB) |
-| Quantisierung | FP8 |
-| Kontextlänge | 131.072 Tokens (128k) |
-| Thinking | Ja (Qwen3 Reasoning Parser) |
-| Tool Calls | Ja (Qwen3 Coder Parser) |
+| Property | Value |
+|----------|-------|
+| Model | Qwen3.6-35B-A3B-FP8 |
+| Path | `~/models/Qwen3.6-35B-A3B-FP8` (~35 GB) |
+| Quantization | FP8 |
+| Context length | 131,072 tokens (128k) |
+| Thinking | Yes (Qwen3 reasoning parser) |
+| Tool calls | Yes (Qwen3 coder parser) |
 
-## Dienste auf einen Blick
+## Services at a Glance
 
-| Dienst | Port | Verwaltung | Zweck |
-|--------|------|-----------|-------|
-| SGLang Server | 30000 | Docker (`qwen36`) | Modell-Inferenz, OpenAI-API |
-| LiteLLM Proxy | 4000 | systemd (`litellm`) | Anthropic-API-Kompatibilität |
-| SearXNG | 8080 | Docker Compose (`~/searxng`) | Meta-Suchmaschine |
-| SearXNG MCP | 8001 | systemd (`mcp-searxng`) | Websuche für Claude Code |
-| Open-WebUI | 3000 | Docker Compose (`~/open-webui`) | Chat-Frontend |
-| SGLang-Proxy | intern | Docker (`sglang-proxy`) | No-Think-Modus für Open-WebUI |
-| PostgreSQL | 5432 | Docker (`litellm-db`) | LiteLLM-Datenbank |
+| Service | Port | Managed by | Purpose |
+|---------|------|-----------|---------|
+| SGLang Server | 30000 | Docker (`qwen36`) | Model inference, OpenAI API |
+| LiteLLM Proxy | 4000 | systemd (`litellm`) | Anthropic API compatibility |
+| SearXNG | 8080 | Docker Compose (`~/searxng`) | Meta search engine |
+| SearXNG MCP | 8001 | systemd (`mcp-searxng`) | Web search for Claude Code |
+| Open-WebUI | 3000 | Docker Compose (`~/open-webui`) | Chat frontend |
+| SGLang-Proxy | internal | Docker (`sglang-proxy`) | No-think mode for Open-WebUI |
+| PostgreSQL | 5432 | Docker (`litellm-db`) | LiteLLM database |
 
-## Architektur (Kurzform)
+## Architecture (Summary)
 
 ```
 Claude Code (claude-qwen)
-    └─► LiteLLM :4000  (Anthropic→OpenAI Übersetzung)
-            └─► SGLang :30000  (Qwen3.6-35B Inferenz)
+    └─► LiteLLM :4000  (Anthropic→OpenAI translation)
+            └─► SGLang :30000  (Qwen3.6-35B inference)
 
 Open-WebUI :3000
-    ├─► SGLang :30000          (Modell mit Thinking)
-    ├─► SGLang-Proxy :8000     (Modell ohne Thinking)
-    └─► SearXNG :8080          (Websuche)
+    ├─► SGLang :30000          (model with thinking)
+    ├─► SGLang-Proxy :8000     (model without thinking)
+    └─► SearXNG :8080          (web search)
 
 Claude Code MCP
     └─► mcp-searxng :8001
             └─► SearXNG :8080
 ```
 
-Detaillierte Architektur: [docs/architecture.md](docs/architecture.md)
+Detailed architecture: [docs/architecture.md](docs/architecture.md)
 
-## Quickstart: Alles starten
+## Quickstart: Starting Everything
 
 ```bash
-# 1. Modell laden (dauert 2–5 Min.)
+# 1. Load model (takes 2–5 min.)
 ~/start_qwen36.sh
 
 # 2. SearXNG
@@ -70,24 +70,24 @@ cd ~/open-webui && docker compose up -d
 # 4. LiteLLM
 sudo systemctl start litellm
 
-# 5. MCP für Claude Code
+# 5. MCP for Claude Code
 sudo systemctl start mcp-searxng
 ```
 
-Nach Reboot starten alle Dienste automatisch (via `restart: unless-stopped` bzw. systemd).
+After a reboot, all services start automatically (via `restart: unless-stopped` or systemd).
 
-## Claude Code mit lokalem Modell
+## Claude Code with Local Model
 
 ```bash
-claude-qwen          # Startet Claude Code mit Qwen über LiteLLM
+claude-qwen          # Starts Claude Code with Qwen via LiteLLM
 ```
 
-Alias ist in `~/.bashrc` definiert. Details: [docs/claude-code-setup.md](docs/claude-code-setup.md)
+The alias is defined in `~/.bashrc`. Details: [docs/claude-code-setup.md](docs/claude-code-setup.md)
 
-## Dienste verwalten
+## Managing Services
 
 ```bash
-# Status prüfen
+# Check status
 docker ps
 systemctl status litellm
 systemctl status mcp-searxng
@@ -97,60 +97,60 @@ docker logs -f qwen36
 journalctl -u litellm -f
 journalctl -u mcp-searxng -f
 
-# Einzelne Dienste neu starten
+# Restart individual services
 docker restart qwen36
 sudo systemctl restart litellm
 cd ~/open-webui && docker compose restart
 ```
 
-## Repo-Struktur
+## Repo Structure
 
 ```
 herzig-ai-stack/
-├── README.md                        # Diese Datei
+├── README.md                        # This file
 ├── docs/
-│   ├── architecture.md              # Systemarchitektur mit ASCII-Diagrammen
-│   ├── services.md                  # Alle Dienste mit Parametern erklärt
-│   ├── claude-code-setup.md         # Claude Code Konfiguration
-│   └── common-changes.md            # Häufige Änderungen (Kochbuch)
+│   ├── architecture.md              # System architecture with ASCII diagrams
+│   ├── services.md                  # All services with parameters explained
+│   ├── claude-code-setup.md         # Claude Code configuration
+│   └── common-changes.md            # Common changes cookbook
 ├── sglang/
-│   └── start.sh                     # SGLang-Container starten
+│   └── start.sh                     # Start SGLang container
 ├── litellm/
-│   ├── config.yaml                  # LiteLLM-Konfiguration
-│   └── litellm.service              # systemd Service-Datei
+│   ├── config.yaml                  # LiteLLM configuration
+│   └── litellm.service              # systemd service file
 ├── searxng/
 │   ├── docker-compose.yml           # SearXNG Docker Compose
-│   ├── config/settings.yml          # SearXNG-Einstellungen
-│   ├── mcp_server.py                # MCP-Server-Script
-│   └── mcp-searxng.service          # systemd Service-Datei
+│   ├── config/settings.yml          # SearXNG settings
+│   ├── mcp_server.py                # MCP server script
+│   └── mcp-searxng.service          # systemd service file
 └── open-webui/
     ├── docker-compose.yml           # Open-WebUI + SGLang-Proxy
-    ├── .env.example                 # Umgebungsvariablen (Vorlage)
+    ├── .env.example                 # Environment variables (template)
     └── sglang-proxy/
-        ├── Dockerfile               # Proxy-Image
-        └── proxy.py                 # FastAPI-Proxy (No-Think-Modus)
+        ├── Dockerfile               # Proxy image
+        └── proxy.py                 # FastAPI proxy (no-think mode)
 ```
 
-## Konfigurationsdateien — wo was liegt
+## Configuration Files — Where Things Live
 
-| Datei im Repo | Systempfad | Beschreibung |
-|--------------|------------|-------------|
-| `sglang/start.sh` | `~/start_qwen36.sh` | SGLang-Startskript |
-| `litellm/config.yaml` | `~/litellm_config.yaml` | LiteLLM-Konfiguration |
-| `litellm/litellm.service` | `/etc/systemd/system/litellm.service` | LiteLLM-Service |
+| File in Repo | System Path | Description |
+|-------------|-------------|-------------|
+| `sglang/start.sh` | `~/start_qwen36.sh` | SGLang startup script |
+| `litellm/config.yaml` | `~/litellm_config.yaml` | LiteLLM configuration |
+| `litellm/litellm.service` | `/etc/systemd/system/litellm.service` | LiteLLM service |
 | `searxng/docker-compose.yml` | `~/searxng/docker-compose.yml` | SearXNG Compose |
-| `searxng/config/settings.yml` | `~/searxng/config/settings.yml` | SearXNG-Einstellungen |
-| `searxng/mcp_server.py` | `~/searxng/mcp_server.py` | MCP-Server-Script |
-| `searxng/mcp-searxng.service` | `/etc/systemd/system/mcp-searxng.service` | MCP-Service |
+| `searxng/config/settings.yml` | `~/searxng/config/settings.yml` | SearXNG settings |
+| `searxng/mcp_server.py` | `~/searxng/mcp_server.py` | MCP server script |
+| `searxng/mcp-searxng.service` | `/etc/systemd/system/mcp-searxng.service` | MCP service |
 | `open-webui/docker-compose.yml` | `~/open-webui/docker-compose.yml` | WebUI Compose |
-| `open-webui/.env.example` | `~/open-webui/.env` | WebUI-Umgebungsvariablen |
-| `open-webui/sglang-proxy/proxy.py` | `~/open-webui/sglang-proxy/proxy.py` | Proxy-Script |
+| `open-webui/.env.example` | `~/open-webui/.env` | WebUI environment variables |
+| `open-webui/sglang-proxy/proxy.py` | `~/open-webui/sglang-proxy/proxy.py` | Proxy script |
 
-> **Hinweis:** Änderungen im Repo müssen manuell in die Systempfade übertragen werden (oder Symlinks einrichten).
+> **Note:** Changes in the repo must be manually copied to the system paths (or set up symlinks).
 
-## Weitere Dokumentation
+## Further Documentation
 
-- [docs/architecture.md](docs/architecture.md) — Detaillierte Architektur und Netzwerke
-- [docs/services.md](docs/services.md) — Alle Dienste mit vollständiger Parameterübersicht
-- [docs/claude-code-setup.md](docs/claude-code-setup.md) — Claude Code Integration (Setup-Details: [claude_code_local](https://github.com/HerzigGroup/claude_code_local))
-- [docs/common-changes.md](docs/common-changes.md) — Kochbuch für häufige Änderungen
+- [docs/architecture.md](docs/architecture.md) — Detailed architecture and networks
+- [docs/services.md](docs/services.md) — All services with full parameter reference
+- [docs/claude-code-setup.md](docs/claude-code-setup.md) — Claude Code integration (setup details: [claude_code_local](https://github.com/HerzigGroup/claude_code_local))
+- [docs/common-changes.md](docs/common-changes.md) — Cookbook for common changes
