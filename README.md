@@ -20,7 +20,7 @@ This repo documents all services, configurations, and startup scripts.
 | Model | Qwen3.6-35B-A3B-FP8 |
 | Path | `~/models/Qwen3.6-35B-A3B-FP8` (~35 GB) |
 | Quantization | FP8 |
-| Context length | 131,072 tokens (128k) |
+| Context length | 262,144 tokens (262k) |
 | Thinking | Yes (Qwen3 reasoning parser) |
 | Tool calls | Yes (Qwen3 coder parser) |
 

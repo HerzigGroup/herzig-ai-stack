@@ -4,32 +4,36 @@ model_list:
       model: openai//model
       api_base: http://localhost:30000/v1
       api_key: "no-key"
-      merge_reasoning_content_in_choices: true
-      max_tokens: 16384
+      merge_reasoning_content_in_choices: false
+      max_tokens: 32768
+      context_window: 262144
       drop_params: ["tool_choice"]
   - model_name: claude-opus-4-7
     litellm_params:
       model: openai//model
       api_base: http://localhost:30000/v1
       api_key: "no-key"
-      merge_reasoning_content_in_choices: true
-      max_tokens: 16384
+      merge_reasoning_content_in_choices: false
+      max_tokens: 32768
+      context_window: 262144
       drop_params: ["tool_choice"]
   - model_name: claude-haiku-4-5-20251001
     litellm_params:
       model: openai//model
       api_base: http://localhost:30000/v1
       api_key: "no-key"
-      merge_reasoning_content_in_choices: true
-      max_tokens: 16384
+      merge_reasoning_content_in_choices: false
+      max_tokens: 32768
+      context_window: 262144
       drop_params: ["tool_choice"]
   - model_name: claude-3-5-sonnet-20241022
     litellm_params:
       model: openai//model
       api_base: http://localhost:30000/v1
       api_key: "no-key"
-      merge_reasoning_content_in_choices: true
-      max_tokens: 16384
+      merge_reasoning_content_in_choices: false
+      max_tokens: 32768
+      context_window: 262144
       drop_params: ["tool_choice"]
 
 litellm_settings:
@@ -38,7 +42,7 @@ litellm_settings:
   use_chat_completions_url_for_anthropic_messages: true
   # Qwen3 tuned for coding with thinking mode
   default_params:
-    temperature: 0.3
-    top_p: 0.9
+    temperature: 0.6
+    top_p: 0.95
 
 general_settings: {}

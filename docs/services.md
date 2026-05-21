@@ -19,7 +19,12 @@
 | `--port` | `30000` | Port of the OpenAI API |
 | `--tp-size` | `1` | Tensor parallelism (1 = no multi-GPU) |
 | `--mem-fraction-static` | `0.80` | 80% of GPU memory reserved for KV cache |
-| `--context-length` | `131072` | Max context length (128k tokens) |
+| `--context-length` | `262144` | Max context length (262k tokens, full native context) |
+| `--mamba-scheduler-strategy` | `extra_buffer` | Scheduling optimization for hybrid GDN/Mamba architecture |
+| `--speculative-algo` | `NEXTN` | Multi-token prediction speculative decoding (~20–40% throughput gain) |
+| `--speculative-num-steps` | `3` | Number of draft steps per speculative round |
+| `--speculative-eagle-topk` | `1` | Top-k candidates per draft step |
+| `--speculative-num-draft-tokens` | `4` | Draft tokens generated per step |
 | `--reasoning-parser` | `qwen3` | Enables thinking mode (returns `<think>` blocks) |
 | `--tool-call-parser` | `qwen3_coder` | Parses tool calls in Qwen3 format |
 
@@ -46,10 +51,11 @@
 **Key configuration details:**
 
 - Registered model names: `claude-sonnet-4-6`, `claude-opus-4-7`, `claude-haiku-4-5-20251001`, `claude-3-5-sonnet-20241022` — all point to the same SGLang endpoint
-- `merge_reasoning_content_in_choices: true` — thinking content is embedded in the normal response (Anthropic API compatible)
+- `merge_reasoning_content_in_choices: false` — thinking content is returned as a separate `reasoning_content` field; not stored in conversation history → less context consumption, no verbose dump in Claude Code console
 - `drop_params: ["tool_choice"]` — SGLang/Qwen does not support this parameter
-- `max_tokens: 16384` — maximum output token count
-- `temperature: 0.3`, `top_p: 0.9` — Qwen3-optimized sampling parameters
+- `max_tokens: 32768` — maximum output token count
+- `context_window: 262144` — tells LiteLLM the actual context size for this backend
+- `temperature: 0.6`, `top_p: 0.95` — Qwen3 recommended settings for coding with thinking mode
 - `request_timeout: 300` — 5-minute timeout for long requests
 - `use_chat_completions_url_for_anthropic_messages: true` — required for Anthropic Messages API compatibility
 

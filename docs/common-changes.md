@@ -14,9 +14,9 @@
 
 In `sglang/start.sh`:
 ```bash
---context-length 131072   # Adjust value (e.g. 65536 for 64k)
+--context-length 262144   # Adjust value (e.g. 131072 for 128k)
 ```
-Also update `CLAUDE_CODE_AUTO_COMPACT_WINDOW` in the `claude-qwen` alias.
+Also update `CLAUDE_CODE_AUTO_COMPACT_WINDOW` in the `claude-qwen` alias (in `claude_code_local/setup.sh`) and in `litellm/config.yaml` (`context_window`).
 
 ## Disable Thinking Mode Globally (SGLang-wide setting)
 
@@ -55,8 +55,8 @@ If the server's IP changes (e.g. after DHCP reassignment):
 
 In `litellm/config.yaml` under `litellm_settings.default_params`:
 ```yaml
-temperature: 0.3    # Creativity (0.0 = deterministic, 1.0 = creative)
-top_p: 0.9         # Nucleus sampling (alternative to temperature)
+temperature: 0.6    # Qwen3 recommendation for coding with thinking mode
+top_p: 0.95        # Nucleus sampling
 ```
 
 For per-model overrides, add a `temperature` value to each model's `litellm_params` entry.

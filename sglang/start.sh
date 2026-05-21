@@ -29,7 +29,12 @@ else
       --host 0.0.0.0 \
       --tp-size 1 \
       --mem-fraction-static 0.80 \
-      --context-length 131072 \
+      --context-length 262144 \
+      --mamba-scheduler-strategy extra_buffer \
+      --speculative-algo NEXTN \
+      --speculative-num-steps 3 \
+      --speculative-eagle-topk 1 \
+      --speculative-num-draft-tokens 4 \
       --reasoning-parser qwen3 \
       --tool-call-parser qwen3_coder
 fi

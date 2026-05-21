@@ -12,9 +12,9 @@ alias claude-qwen='ANTHROPIC_BASE_URL=http://132.180.21.140:4000 \
   ANTHROPIC_API_KEY=no-key \
   CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1 \
   API_TIMEOUT_MS=600000 \
-  CLAUDE_CODE_AUTO_COMPACT_WINDOW=131072 \
+  CLAUDE_CODE_AUTO_COMPACT_WINDOW=262144 \
   CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80 \
-  CLAUDE_CODE_MAX_OUTPUT_TOKENS=20480 \
+  CLAUDE_CODE_MAX_OUTPUT_TOKENS=32768 \
   claude'
 ```
 
@@ -26,9 +26,9 @@ alias claude-qwen='ANTHROPIC_BASE_URL=http://132.180.21.140:4000 \
 | `ANTHROPIC_API_KEY` | `no-key` | Required field, but LiteLLM does not validate it |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` | Disables beta features not supported by the local model |
 | `API_TIMEOUT_MS` | `600000` | 10-minute timeout — local inference can take longer than cloud |
-| `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | `131072` | Matches the 128k context window of the model |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | `262144` | Matches the full 262k native context window of the model |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | `80` | Compacts context at 80% utilization |
-| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | `20480` | ~20k max output tokens |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | `32768` | ~32k max output tokens |
 
 **Usage:**
 ```bash
