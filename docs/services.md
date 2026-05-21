@@ -51,6 +51,7 @@
 **Key configuration details:**
 
 - Registered model names: `claude-sonnet-4-6`, `claude-opus-4-7`, `claude-haiku-4-5-20251001`, `claude-3-5-sonnet-20241022` — all point to the same SGLang endpoint
+- `claude-haiku-4-5-20251001` has thinking disabled (`enable_thinking: false`) — used by Claude Code for fast internal ops where thinking is unnecessary overhead
 - `merge_reasoning_content_in_choices: false` — thinking content is returned as a separate `reasoning_content` field; not stored in conversation history → less context consumption, no verbose dump in Claude Code console
 - `drop_params: ["tool_choice"]` — SGLang/Qwen does not support this parameter
 - `max_tokens: 32768` — maximum output token count

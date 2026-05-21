@@ -26,6 +26,9 @@ model_list:
       max_tokens: 32768
       context_window: 262144
       drop_params: ["tool_choice"]
+      extra_body:
+        chat_template_kwargs:
+          enable_thinking: false
   - model_name: claude-3-5-sonnet-20241022
     litellm_params:
       model: openai//model
