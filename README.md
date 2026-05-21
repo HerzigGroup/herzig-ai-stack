@@ -152,5 +152,5 @@ herzig-ai-stack/
 
 - [docs/architecture.md](docs/architecture.md) — Detaillierte Architektur und Netzwerke
 - [docs/services.md](docs/services.md) — Alle Dienste mit vollständiger Parameterübersicht
-- [docs/claude-code-setup.md](docs/claude-code-setup.md) — Claude Code Integration
+- [docs/claude-code-setup.md](docs/claude-code-setup.md) — Claude Code Integration (Setup-Details: [claude_code_local](https://github.com/HerzigGroup/claude_code_local))
 - [docs/common-changes.md](docs/common-changes.md) — Kochbuch für häufige Änderungen

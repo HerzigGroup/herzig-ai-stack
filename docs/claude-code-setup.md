@@ -1,5 +1,8 @@
 # Claude Code Konfiguration
 
+> Die vollständige Einrichtung von Claude Code mit lokalem Modell (Installation, Konfiguration, Skripte) ist im separaten Repo dokumentiert:
+> **https://github.com/HerzigGroup/claude_code_local**
+
 ## Lokales Modell nutzen (`claude-qwen`)
 
 In `~/.bashrc` ist ein Alias definiert, der Claude Code mit dem lokalen LiteLLM-Proxy startet:
