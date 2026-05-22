@@ -84,6 +84,16 @@ claude-qwen          # Starts Claude Code with Qwen via LiteLLM
 
 The alias is defined in `~/.bashrc`. Details: [docs/claude-code-setup.md](docs/claude-code-setup.md)
 
+## Accessing the Server from Your Laptop
+
+Group members can connect from any machine on the university network.
+See **[docs/api-access.md](docs/api-access.md)** for instructions covering:
+
+- **Claude Code CLI** — via [HerzigGroup/claude_code_local](https://github.com/HerzigGroup/claude_code_local) (recommended)
+- **Python** — Anthropic SDK (port 4000) and OpenAI SDK (port 30000)
+- **VS Code extensions** — Continue, Cline, and any OpenAI-compatible extension
+- **curl** — direct API calls for quick tests or scripting
+
 ## Managing Services
 
 ```bash
@@ -170,6 +180,7 @@ sudo systemctl daemon-reload
 
 ## Further Documentation
 
+- [docs/api-access.md](docs/api-access.md) — How to connect from your own laptop (Python, VS Code, curl)
 - [docs/architecture.md](docs/architecture.md) — Detailed architecture and networks
 - [docs/services.md](docs/services.md) — All services with full parameter reference
 - [docs/claude-code-setup.md](docs/claude-code-setup.md) — Claude Code integration (setup details: [claude_code_local](https://github.com/HerzigGroup/claude_code_local))
