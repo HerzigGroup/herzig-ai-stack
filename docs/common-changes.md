@@ -63,10 +63,15 @@ Note: this does not need `model_info` because it applies after LiteLLM's routing
 |---|---|---|---|
 | `claude-haiku-4-5-20251001` | Deaktiviert | 32768 | Schnelle interne Ops |
 | `claude-sonnet-4-6` | Aktiv | 32768 | Standard Coding |
-| `claude-opus-4-7` | Aktiv | **65536** | Komplexe Analyse, mehr Raum für tiefes Thinking |
+| `claude-opus-4-7` | Aktiv | 32768 | Komplexe Analyse |
 | `claude-3-5-sonnet-20241022` | Aktiv | 32768 | Legacy-Alias |
 
-Opus hat doppeltes `max_tokens`-Budget, was dem Modell mehr Spielraum für tiefes Thinking gibt (Thinking-Tokens zählen zum output_tokens-Budget).
+**Warum alle Aliase 32768?** Das Limit ist durch das Zusammenspiel von Context-Window und Autocompaction bestimmt:
+- Context-Window: 262.144 Tokens
+- Autocompaction-Schwelle: 80% = 209.715 Input-Tokens
+- Verbleibend für Output: 262.144 − 209.715 = **52.429 Tokens**
+- 32.768 < 52.429 ✓ — kein Truncation-Risiko selbst am Ende langer Sessions
+- Ein höheres Limit (z.B. 65.536) würde den verbleibenden Output-Raum überschreiten und dazu führen, dass SGLang Antworten mit `finish_reason: "length"` statt `"end_turn"` zurückgibt.
 
 ## Add a New Search Engine in SearXNG
 

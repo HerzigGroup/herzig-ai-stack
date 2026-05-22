@@ -55,9 +55,8 @@
   - `model_info: {supports_reasoning: false}` — Claude Code sends `anthropic-beta: interleaved-thinking-2025-05-14` specifically for haiku-4-5, which triggers a second routing path in LiteLLM (`_route_openai_thinking_to_responses_api_if_needed`). Without this flag, LiteLLM routes the request to SGLang's `/v1/responses` endpoint, which rejects `type: function` tool definitions with a 500 error. The flag has an explicit early-exit that bypasses the Responses API routing.
   - `drop_params: [thinking, budget_tokens]` — defense-in-depth: strips the thinking parameters before they reach SGLang, preventing conflicts with `enable_thinking: false`
 - `merge_reasoning_content_in_choices: false` — thinking content is returned as a separate `reasoning_content` field; not stored in conversation history → less context consumption, no verbose dump in Claude Code console
-- `custom_params.thinking_budget` — activates `Qwen3ThinkingBudgetLogitProcessor`; forces `</think>` when the budget (in tokens) is exhausted. Set per alias: `claude-sonnet-4-6` → 8192, `claude-opus-4-7` → 32768. Note: Claude Code's `budget_tokens` (sent via `/effort`) is **not** used by SGLang — this is the actual working mechanism.
 - `drop_params: ["tool_choice"]` — SGLang/Qwen does not support this parameter
-- `max_tokens: 32768` — maximum output token count
+- `max_tokens: 32768` — maximum output token count; capped at 32768 for all aliases (see compaction note in [common-changes.md](common-changes.md#thinking-budget-einstellen))
 - `context_window: 262144` — tells LiteLLM the actual context size for this backend
 - `temperature: 0.6`, `top_p: 0.95` — Qwen3 recommended settings for coding with thinking mode
 - `request_timeout: 300` — 5-minute timeout for long requests
