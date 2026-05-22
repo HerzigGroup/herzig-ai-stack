@@ -48,6 +48,33 @@ litellm_settings:
 ```
 Note: this does not need `model_info` because it applies after LiteLLM's routing decision.
 
+## Thinking-Budget einstellen
+
+Das Thinking-Budget bestimmt, wie viele Tokens das Modell maximal mit Nachdenken verbringen darf, bevor `</think>` erzwungen wird. Qwen3 in SGLang unterstützt das über den `Qwen3ThinkingBudgetLogitProcessor`.
+
+**Aktuell eingestellte Budgets (in `litellm/config.yaml`):**
+
+| Modell-Alias | Thinking-Budget |
+|---|---|
+| `claude-haiku-4-5-20251001` | Thinking deaktiviert |
+| `claude-sonnet-4-6` | 8.192 Tokens |
+| `claude-opus-4-7` | 32.768 Tokens |
+| `claude-3-5-sonnet-20241022` | 8.192 Tokens |
+
+**Budget für einen Alias ändern:**
+```yaml
+- model_name: claude-opus-4-7
+  litellm_params:
+    ...
+    extra_body:
+      custom_params:
+        thinking_budget: 65536   # Neuer Wert
+```
+
+**Wichtig: `/effort` hat keine Wirkung.** Claude Code sendet `budget_tokens` im `thinking`-Parameter, aber SGLang's `normalize_reasoning_inputs` extrahiert diesen Wert nicht. Der `Qwen3ThinkingBudgetLogitProcessor` liest ausschließlich `custom_params.thinking_budget`.
+
+Nach Änderungen: `sudo systemctl restart litellm`
+
 ## Add a New Search Engine in SearXNG
 
 Add to `searxng/config/settings.yml` under `engines:`:

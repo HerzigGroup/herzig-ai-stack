@@ -8,6 +8,9 @@ model_list:
       max_tokens: 32768
       context_window: 262144
       drop_params: ["tool_choice"]
+      extra_body:
+        custom_params:
+          thinking_budget: 8192
   - model_name: claude-opus-4-7
     litellm_params:
       model: openai//model
@@ -17,6 +20,9 @@ model_list:
       max_tokens: 32768
       context_window: 262144
       drop_params: ["tool_choice"]
+      extra_body:
+        custom_params:
+          thinking_budget: 32768
   - model_name: claude-haiku-4-5-20251001
     litellm_params:
       model: openai//model
@@ -40,6 +46,9 @@ model_list:
       max_tokens: 32768
       context_window: 262144
       drop_params: ["tool_choice"]
+      extra_body:
+        custom_params:
+          thinking_budget: 8192
 
 litellm_settings:
   drop_params: true
