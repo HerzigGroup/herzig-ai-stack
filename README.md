@@ -146,7 +146,8 @@ herzig-ai-stack/
 | `open-webui/.env.example` | `~/open-webui/.env` | WebUI environment variables |
 | `open-webui/sglang-proxy/proxy.py` | `~/open-webui/sglang-proxy/proxy.py` | Proxy script |
 
-> **Note:** Changes in the repo must be manually copied to the system paths (or set up symlinks).
+> **Sync:** `sglang/start.sh` and `litellm/config.yaml` are **symlinked** from the home directory — changes in the repo take effect immediately (restart the service/container to apply).
+> For all other files run `bash sync-server.sh` (shows divergence) or `bash sync-server.sh --deploy` (copies changed files).
 
 ## Further Documentation
 
