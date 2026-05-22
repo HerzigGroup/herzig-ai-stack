@@ -133,21 +133,40 @@ herzig-ai-stack/
 
 ## Configuration Files — Where Things Live
 
-| File in Repo | System Path | Description |
-|-------------|-------------|-------------|
-| `sglang/start.sh` | `~/start_qwen36.sh` | SGLang startup script |
-| `litellm/config.yaml` | `~/litellm_config.yaml` | LiteLLM configuration |
-| `litellm/litellm.service` | `/etc/systemd/system/litellm.service` | LiteLLM service |
-| `searxng/docker-compose.yml` | `~/searxng/docker-compose.yml` | SearXNG Compose |
-| `searxng/config/settings.yml` | `~/searxng/config/settings.yml` | SearXNG settings |
-| `searxng/mcp_server.py` | `~/searxng/mcp_server.py` | MCP server script |
-| `searxng/mcp-searxng.service` | `/etc/systemd/system/mcp-searxng.service` | MCP service |
-| `open-webui/docker-compose.yml` | `~/open-webui/docker-compose.yml` | WebUI Compose |
-| `open-webui/.env.example` | `~/open-webui/.env` | WebUI environment variables |
-| `open-webui/sglang-proxy/proxy.py` | `~/open-webui/sglang-proxy/proxy.py` | Proxy script |
+| File in Repo | System Path | Sync |
+|-------------|-------------|------|
+| `sglang/start.sh` | `~/start_qwen36.sh` | Symlink |
+| `litellm/config.yaml` | `~/litellm_config.yaml` | Symlink |
+| `litellm/litellm.service` | `/etc/systemd/system/litellm.service` | Manual (sudo) |
+| `searxng/docker-compose.yml` | `~/searxng/docker-compose.yml` | `sync-server.sh` |
+| `searxng/config/settings.yml` | `~/searxng/config/settings.yml` | `sync-server.sh` |
+| `searxng/mcp_server.py` | `~/searxng/mcp_server.py` | `sync-server.sh` |
+| `searxng/mcp-searxng.service` | `/etc/systemd/system/mcp-searxng.service` | Manual (sudo) |
+| `open-webui/docker-compose.yml` | `~/open-webui/docker-compose.yml` | `sync-server.sh` |
+| `open-webui/.env.example` | `~/open-webui/.env` | Manual |
+| `open-webui/sglang-proxy/proxy.py` | `~/open-webui/sglang-proxy/proxy.py` | `sync-server.sh` |
 
-> **Sync:** `sglang/start.sh` and `litellm/config.yaml` are **symlinked** from the home directory — changes in the repo take effect immediately (restart the service/container to apply).
-> For all other files run `bash sync-server.sh` (shows divergence) or `bash sync-server.sh --deploy` (copies changed files).
+## Deploying Config Changes to the Server
+
+After pulling changes from the repo, use `sync-server.sh` to apply them:
+
+```bash
+bash sync-server.sh           # show what's out of sync
+bash sync-server.sh --deploy  # copy changed files to system paths
+```
+
+**Symlinked files** (`sglang/start.sh`, `litellm/config.yaml`) are always up to date automatically — no copy needed, just restart the relevant service:
+
+```bash
+sudo systemctl restart litellm          # after litellm/config.yaml changes
+docker stop qwen36 && docker rm qwen36 && ~/start_qwen36.sh  # after sglang/start.sh changes
+```
+
+**systemd service files** need sudo and a daemon reload:
+```bash
+sudo cp litellm/litellm.service /etc/systemd/system/
+sudo systemctl daemon-reload
+```
 
 ## Further Documentation
 
