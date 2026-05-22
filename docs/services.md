@@ -51,7 +51,9 @@
 **Key configuration details:**
 
 - Registered model names: `claude-sonnet-4-6`, `claude-opus-4-7`, `claude-haiku-4-5-20251001`, `claude-3-5-sonnet-20241022` — all point to the same SGLang endpoint
-- `claude-haiku-4-5-20251001` has thinking disabled (`enable_thinking: false`) — used by Claude Code for fast internal ops where thinking is unnecessary overhead
+- `claude-haiku-4-5-20251001` has thinking disabled (`enable_thinking: false`) — used by Claude Code for fast internal ops where thinking is unnecessary overhead. **Important:** two additional config entries are required to make this work correctly:
+  - `model_info: {supports_reasoning: false}` — Claude Code sends `anthropic-beta: interleaved-thinking-2025-05-14` specifically for haiku-4-5, which triggers a second routing path in LiteLLM (`_route_openai_thinking_to_responses_api_if_needed`). Without this flag, LiteLLM routes the request to SGLang's `/v1/responses` endpoint, which rejects `type: function` tool definitions with a 500 error. The flag has an explicit early-exit that bypasses the Responses API routing.
+  - `drop_params: [thinking, budget_tokens]` — defense-in-depth: strips the thinking parameters before they reach SGLang, preventing conflicts with `enable_thinking: false`
 - `merge_reasoning_content_in_choices: false` — thinking content is returned as a separate `reasoning_content` field; not stored in conversation history → less context consumption, no verbose dump in Claude Code console
 - `drop_params: ["tool_choice"]` — SGLang/Qwen does not support this parameter
 - `max_tokens: 32768` — maximum output token count

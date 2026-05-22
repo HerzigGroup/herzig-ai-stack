@@ -18,15 +18,35 @@ In `sglang/start.sh`:
 ```
 Also update `CLAUDE_CODE_AUTO_COMPACT_WINDOW` in the `claude-qwen` alias (in `claude_code_local/setup.sh`) and in `litellm/config.yaml` (`context_window`).
 
-## Disable Thinking Mode Globally (SGLang-wide setting)
+## Disable Thinking Mode for a Model Alias
 
-Currently thinking is not explicitly controlled for Claude Code via LiteLLM — it is active in the model. To disable it globally, add to `litellm/config.yaml`:
+Thinking is currently disabled for `claude-haiku-4-5-20251001` (see `litellm/config.yaml`).
+To disable thinking for another model alias, three entries are required together — using only `enable_thinking: false` will cause 500 errors when Claude Code sends thinking-related beta headers:
+
 ```yaml
-default_params:
-  extra_body:
-    chat_template_kwargs:
-      enable_thinking: false
+model_list:
+  - model_name: your-model-alias
+    litellm_params:
+      ...
+      drop_params: ["tool_choice", "thinking", "budget_tokens"]
+      extra_body:
+        chat_template_kwargs:
+          enable_thinking: false
+    model_info:
+      supports_reasoning: false   # prevents LiteLLM from routing to /v1/responses
 ```
+
+**Why all three are needed:** Claude Code sends `anthropic-beta: interleaved-thinking-2025-05-14` for haiku-class models, which triggers LiteLLM's internal Responses API routing (`_route_openai_thinking_to_responses_api_if_needed`). SGLang's `/v1/responses` endpoint only accepts `web_search_preview`/`code_interpreter` tool types — not `function` — causing a 500. `supports_reasoning: false` bypasses this routing; `drop_params` strips the conflicting thinking params before they reach SGLang.
+
+To disable thinking globally (all models), add to `litellm_settings.default_params` instead:
+```yaml
+litellm_settings:
+  default_params:
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: false
+```
+Note: this does not need `model_info` because it applies after LiteLLM's routing decision.
 
 ## Add a New Search Engine in SearXNG
 
