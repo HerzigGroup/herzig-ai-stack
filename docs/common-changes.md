@@ -50,30 +50,23 @@ Note: this does not need `model_info` because it applies after LiteLLM's routing
 
 ## Thinking-Budget einstellen
 
-Das Thinking-Budget bestimmt, wie viele Tokens das Modell maximal mit Nachdenken verbringen darf, bevor `</think>` erzwungen wird. Qwen3 in SGLang unterstützt das über den `Qwen3ThinkingBudgetLogitProcessor`.
+**Kurzfassung:** Präzise Token-Budget-Limits für das Thinking funktionieren **nicht** zusammen mit NEXTN-Speculative-Decoding (unser Setup). Das Modell denkt je nach Frage natürlich viel oder wenig — begrenzbar nur indirekt über `max_tokens` oder Modell-Alias-Wahl.
 
-**Aktuell eingestellte Budgets (in `litellm/config.yaml`):**
+**Was nicht funktioniert: `/effort` und `Qwen3ThinkingBudgetLogitProcessor`**
 
-| Modell-Alias | Thinking-Budget |
-|---|---|
-| `claude-haiku-4-5-20251001` | Thinking deaktiviert |
-| `claude-sonnet-4-6` | 8.192 Tokens |
-| `claude-opus-4-7` | 32.768 Tokens |
-| `claude-3-5-sonnet-20241022` | 8.192 Tokens |
+- Claude Code sendet `thinking: {type: "enabled", budget_tokens: N}` — SGLang ignoriert `budget_tokens` komplett (`normalize_reasoning_inputs` extrahiert den Wert nicht).
+- SGLang hat einen `Qwen3ThinkingBudgetLogitProcessor` der über `custom_params: {thinking_budget: N}` und `--enable-custom-logit-processor` aktiviert werden könnte — aber: der Prozessor ist **inkompatibel mit NEXTN-Speculative-Decoding**. NEXTN commited Draft-Tokens bereits bevor der Prozessor `</think>` erzwingen kann, was zu unzuverlässigen Budgets und Verlangsamungen führt.
 
-**Budget für einen Alias ändern:**
-```yaml
-- model_name: claude-opus-4-7
-  litellm_params:
-    ...
-    extra_body:
-      custom_params:
-        thinking_budget: 65536   # Neuer Wert
-```
+**Was funktioniert: Modell-Alias-Wahl**
 
-**Wichtig: `/effort` hat keine Wirkung.** Claude Code sendet `budget_tokens` im `thinking`-Parameter, aber SGLang's `normalize_reasoning_inputs` extrahiert diesen Wert nicht. Der `Qwen3ThinkingBudgetLogitProcessor` liest ausschließlich `custom_params.thinking_budget`.
+| Modell-Alias | Thinking | max_tokens | Typischer Einsatz |
+|---|---|---|---|
+| `claude-haiku-4-5-20251001` | Deaktiviert | 32768 | Schnelle interne Ops |
+| `claude-sonnet-4-6` | Aktiv | 32768 | Standard Coding |
+| `claude-opus-4-7` | Aktiv | **65536** | Komplexe Analyse, mehr Raum für tiefes Thinking |
+| `claude-3-5-sonnet-20241022` | Aktiv | 32768 | Legacy-Alias |
 
-Nach Änderungen: `sudo systemctl restart litellm`
+Opus hat doppeltes `max_tokens`-Budget, was dem Modell mehr Spielraum für tiefes Thinking gibt (Thinking-Tokens zählen zum output_tokens-Budget).
 
 ## Add a New Search Engine in SearXNG
 
